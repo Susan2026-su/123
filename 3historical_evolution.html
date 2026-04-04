@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>历史演进 - 枕水听桥 · 水韵千年</title>
+<style>
+/*  全局样式  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f6f1e6;
+    font-family: "楷体", "宋体", "Microsoft YaHei", serif;
+    min-height:100vh;
+    padding: 20px;
+    position: relative;
+}
+
+/* 右上角菜单 - 固定定位，与首页样式完全一致 */
+.menu {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    z-index: 1000;
+}
+.btn {
+    padding: 8px 14px;
+    background: #8b5a2b;
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: "楷体", "宋体", serif;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    letter-spacing: 1px;
+}
+.btn:hover {
+    background: #6d4424;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* 页面主标题 (与首页渐变风格一致) */
+.page-title {
+    text-align: center;
+    font-size: 56px;
+    margin: 80px 0 20px 0;
+    letter-spacing: 6px;
+    font-weight: normal;
+    background: linear-gradient(135deg, #3a6b2f, #8b5a2b);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: none;
+}
+@supports not (background-clip: text) {
+    .page-title { color: #4a2e1a; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+}
+
+/* 核心布局容器 */
+.main-container {
+    max-width: 1280px;
+    margin: 0 auto 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+/* 内容卡片  */
+.content-card {
+    border: 2px solid #c2a15b;
+    border-radius: 28px;
+    background: rgba(255, 252, 240, 0.92);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 32px 36px;
+    min-height: 380px; /* 固定最小高度，防止内容切换时高度跳动 */
+}
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 252, 240, 0.98);
+}
+
+/* 左侧文字区 */
+.card-text {
+    flex: 2;
+    min-width: 240px;
+}
+.period-badge {
+    display: inline-block;
+    background: #8b5a2b20;
+    border-left: 4px solid #e6b422;
+    padding: 6px 16px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #7a511e;
+    margin-bottom: 20px;
+    border-radius: 0 20px 20px 0;
+    letter-spacing: 2px;
+}
+.desc-text {
+    font-size: 18px;
+    line-height: 1.85;
+    text-align: justify;
+    color: #3a3222;
+    text-indent: 2em;
+    margin-bottom: 20px;
+}
+.bridge-type {
+    display: inline-block;
+    background: #e9e0cf;
+    padding: 6px 18px;
+    border-radius: 40px;
+    font-size: 15px;
+    color: #8b5a2b;
+    margin-top: 12px;
+    font-weight: bold;
+    box-shadow: inset 0 0 0 1px #dbb87c, 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 右侧图片区 */
+.card-image {
+    flex: 1.2;
+    min-width: 260px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.content-img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: 24px;
+    border: 3px solid #c7a55b;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s;
+}
+.content-img:hover {
+    transform: scale(1.02);
+}
+
+/* 时间轴区域 (融入国风元素) */
+.timeline-section {
+    background: rgba(245, 238, 220, 0.6);
+    border-radius: 48px;
+    padding: 32px 20px 40px; /* 增加底部内边距，给下方文字留出空间 */
+    backdrop-filter: blur(2px);
+    border: 1px solid #e2cfaa;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+}
+.timeline-title {
+    text-align: center;
+    font-size: 26px;
+    color: #7a511e;
+    margin-bottom: 42px; /* 增加与时间轴的间距 */
+    letter-spacing: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+.timeline-title span {
+    font-size: 28px;
+}
+
+/* 时间轴主体 (横轴) */
+.timeline {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+/* 横线背景 (仅在桌面端显示连贯线) */
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px; /* 调整横线位置，对应圆点中心 */
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    background: linear-gradient(90deg, #dbb87c, #b5874a, #dbb87c);
+    border-radius: 3px;
+    z-index: 0;
+}
+
+/* 时间轴节点 - 固定高度布局，防止交互时高度变化 */
+.timeline-item {
+    position: relative;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.2s ease;
+    padding: 0 8px;
+    /* 固定节点区域高度，确保文字下移后不会导致整体布局晃动 */
+    height: auto;
+    min-height: 95px;
+    transform: translateY(-20px);
+}
+
+/* 圆点容器 - 固定位置 */
+.timeline-dot {
+    width: 20px;
+    height: 20px;
+    background: #c7a55b;
+    border: 3px solid #fef3df;
+    border-radius: 50%;
+    margin: 0 auto 16px; /* 增加圆点与下方文字的间距，文字下移 */
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+/* 时期文字 - 增加上边距，向下移动 */
+.timeline-period {
+    font-size: 18px;
+    font-weight: bold;
+    color: #5c451f;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-bottom: 5px; /* 与类型文字拉开间距 */
+    line-height: 1.3;
+}
+
+/* 桥梁类型文字 */
+.timeline-type {
+    font-size: 13px;
+    color: #9b7b4c;
+    margin-top: 0;
+    white-space: nowrap;
+    transition: all 0.2s;
+    line-height: 1.4;
+}
+
+/* 激活态样式 - 仅改变颜色和圆点效果，不改变尺寸导致布局偏移 */
+.timeline-item.active .timeline-dot {
+    background: #e63946;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.3);
+    border-color: #fff2df;
+}
+.timeline-item.active .timeline-period {
+    color: #e63946;
+    text-shadow: 0 0 3px rgba(230,57,70,0.2);
+}
+.timeline-item.active .timeline-type {
+    color: #bc6f2c;
+    font-weight: 500;
+}
+.timeline-item:focus .timeline-dot {
+    background: #e6b422;
+    transform: scale(1.1);
+}
+.timeline-item:focus .timeline-period {
+    color: #9b6a2c;
+}
+
+/* 确保激活态下文字不会换行或高度突变 */
+.timeline-item.active .timeline-period,
+.timeline-item.active .timeline-type {
+    transform: none;
+}
+
+/* 响应式: 小屏幕下时间轴转为纵向流动，隐藏伪线，同时调整菜单样式与首页一致 */
+@media (max-width: 800px) {
+    .timeline::before { display: none; }
+    .timeline {
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+    }
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        width: 85%;
+        background: rgba(255,250,235,0.7);
+        padding: 12px 20px;
+        border-radius: 60px;
+        border-left: 5px solid #e6b422;
+        min-height: auto;
+    }
+    .timeline-dot {
+        margin: 0;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+    .timeline-period, .timeline-type {
+        white-space: normal;
+        text-align: left;
+    }
+    .timeline-period {
+        margin-bottom: 0;
+        flex: 1;
+    }
+    .timeline-type {
+        margin-left: auto;
+        font-size: 12px;
+    }
+    .timeline-item.active .timeline-period {
+        font-size: 16px;
+    }
+    .content-card {
+        padding: 24px 20px;
+        flex-direction: column;
+        min-height: auto;
+    }
+    .card-image {
+        order: -1;
+    }
+    .page-title {
+        font-size: 40px;
+        margin-top: 70px;
+    }
+    /* 响应式菜单调整 - 与首页完全一致 */
+    .menu {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        background: rgba(246, 241, 230, 0.9);
+        gap: 8px;
+        padding: 5px 8px;
+        border-radius: 40px;
+    }
+    .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 500px) {
+    .page-title { font-size: 32px; letter-spacing: 3px; margin-top: 70px; }
+    .period-badge { font-size: 20px; }
+    .desc-text { font-size: 16px; }
+    .timeline-period { font-size: 14px; }
+    .timeline-type { font-size: 10px; }
+    .btn { font-size: 12px; padding: 5px 10px; }
+    .timeline-section {
+        padding: 24px 16px 32px;
+    }
+    .timeline-title {
+        margin-bottom: 28px;
+        font-size: 22px;
+    }
+    .timeline-dot {
+        margin-bottom: 12px;
+    }
+    /* 手机端菜单进一步紧凑 */
+    .menu {
+        gap: 6px;
+        top: 10px;
+        right: 10px;
+    }
+    .btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+
+/* 动画淡入 - 仅用于首次加载，不干扰切换布局 */
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.content-card {
+    animation: fadeSlide 0.45s ease-out;
+}
+
+/* 内容切换时保持高度稳定，防止抖动 */
+.content-card {
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-text, .card-image {
+    transition: opacity 0.2s ease;
+}
+</style>
+</head>
+<body>
+
+<!-- 右上角导航菜单 - 样式与首页完全一致：按钮大小、间距、圆角、阴影完全统一 -->
+<div class="menu">
+    <button class="btn" onclick="go('2home_page.html')">🏠 返回首页</button>
+    <button class="btn" onclick="go('4four_bridges.html')">🌉 四桥古鉴</button>
+    <button class="btn" onclick="go('9summary.html')">🍃 桥韵小结</button>
+    <button class="btn" onclick="go('index.html')">📖 返回封面</button>
+</div>
+
+<!-- 页面主标题 -->
+<div class="page-title"> 古桥历史演进 · 千年匠心</div>
+
+<div class="main-container">
+    <!-- 动态内容卡片 (左侧文字+右侧图片) -->
+    <div class="content-card" id="contentCard">
+        <div class="card-text">
+            <div class="period-badge" id="periodBadge">史前-商周 · 桥梁雏形</div>
+            <div class="desc-text" id="descText">
+                这一时期是中国古桥的起源阶段，先民为跨越溪流、沟壑，创造出最原始的桥梁形式——独木桥与浮桥。
+                独木桥由单根粗壮树干搭建，结构简单，仅能满足单人通行；浮桥则由竹筏、木筏拼接而成，漂浮于水面，
+                是最早的水上交通设施。此时的桥梁无固定造型，以实用为核心，为后世桥梁发展奠定了基础。
+            </div>
+            <div class="bridge-type" id="bridgeTypeTag"> 代表类型：独木桥 · 浮桥</div>
+        </div>
+        <div class="card-image">
+            <img src="material//商周.jpg" alt="史前商周古桥" class="content-img" id="periodImg" onerror="this.src='https://picsum.photos/id/115/400/260?grayscale'">
+        </div>
+    </div>
+
+    <!-- 时间轴区域 (文字已下移，布局稳定) -->
+    <div class="timeline-section">
+        <div class="timeline-title">
+            <span></span> 时光渡口 · 桥脉千年 <span></span>
+        </div>
+        <div class="timeline" id="timelineWrapper">
+            <!-- 节点1：史前-商周 -->
+            <div class="timeline-item active" data-index="0">
+                <div class="timeline-dot"></div>
+                <div class="timeline-period">史前-商周</div>
+                <div class="timeline-type">独木桥 · 浮桥</div>
+            </div>
+            <!-- 节点2：秦汉 -->
+            <div class="timeline-item" data-index="1">
+                <div class="timeline-dot"></div>
+                <div class="timeline-period">秦汉</div>
+                <div class="timeline-type">石梁桥 · 木梁桥</div>
+            </div>
+            <!-- 节点3：隋唐 -->
+            <div class="timeline-item" data-index="2">
+                <div class="timeline-dot"></div>
+                <div class="timeline-period">隋唐</div>
+                <div class="timeline-type">石拱桥 · 敞肩拱</div>
+            </div>
+            <!-- 节点4：宋元 -->
+            <div class="timeline-item" data-index="3">
+                <div class="timeline-dot"></div>
+                <div class="timeline-period">宋元</div>
+                <div class="timeline-type">跨海石桥 · 筏基</div>
+            </div>
+            <!-- 节点5：明清 -->
+            <div class="timeline-item" data-index="4">
+                <div class="timeline-dot"></div>
+                <div class="timeline-period">明清</div>
+                <div class="timeline-type">廊桥 · 联拱桥</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 历史时期数据 (文字描述、图片、标题、桥梁类型)
+    const timelineData = [
+        {
+            period: "史前-商周 · 桥梁雏形",
+            desc: "这一时期是中国古桥的起源阶段，先民为跨越溪流、沟壑，创造出最原始的桥梁形式——独木桥与浮桥。独木桥由单根粗壮树干搭建，结构简单，仅能满足单人通行；浮桥则由竹筏、木筏拼接而成，漂浮于水面，是最早的水上交通设施。此时的桥梁无固定造型，以实用为核心，为后世桥梁发展奠定了基础。",
+            type: " 代表类型：独木桥 · 浮桥",
+            img: "material//商周.jpg",
+            fallback: "https://picsum.photos/id/104/400/260?grayscale"
+        },
+        {
+            period: "秦汉 · 石梁木梁奠基",
+            desc: "秦汉时期，社会稳定、生产力提升，桥梁建设进入初步发展阶段。此时出现了石梁桥与木梁桥，取代了原始的独木桥、浮桥。石梁桥以石块为梁，坚固耐用，可承载更多重量；木梁桥则以木材为原料，搭建便捷，广泛应用于内陆地区。这一时期的桥梁开始注重结构稳定性，为后续复杂桥梁的建造积累了技术经验。",
+            type: " 代表类型：石梁桥 · 木梁桥",
+            img: " material//秦汉.jpg",
+            fallback: "https://picsum.photos/id/95/400/260"
+        },
+        {
+            period: "隋唐 · 石拱桥巅峰",
+            desc: "隋唐是中国古桥发展的黄金时期，石拱桥技术达到顶峰，最具代表性的便是赵州桥（隋代李春建造）。赵州桥是世界上现存最古老、保存最完整的敞肩石拱桥，采用“敞肩拱”结构，既减轻了桥身重量，又增强了抗洪水能力。此时的石拱桥造型优美、结构精巧，兼具实用性与艺术性，成为中国古桥的标志性形式。",
+            type: " 代表类型：敞肩石拱桥 · 赵州桥式",
+            img: "material//隋唐.jpg",
+            fallback: "https://picsum.photos/id/132/400/260"
+        },
+        {
+            period: "宋元 · 跨海石桥奇迹",
+            desc: "宋元时期，航海业与对外贸易发展，跨海桥梁建设迎来突破，代表作品为洛阳桥（北宋）。洛阳桥是中国首座跨海石桥，采用“筏形基础”技术，解决了跨海建桥的难题，开创了桥梁建造的新范式。这一时期的桥梁不仅注重实用性，还融入了更多装饰元素，桥身雕刻精美，体现了当时的艺术水平。",
+            type: " 代表类型：跨海梁式石桥 · 筏形基础",
+            img: "material//宋元.jpg",
+            fallback: "https://picsum.photos/id/104/400/260"
+        },
+        {
+            period: "明清 · 廊桥联拱大成",
+            desc: "明清时期，古桥体系趋于成熟，出现了廊桥、联拱桥等多种形式。廊桥在桥身之上修建廊屋，可遮阳避雨、供人休憩，兼具交通与休闲功能；联拱桥由多拱相连，造型宏伟，适应不同的水域环境（如卢沟桥）。这一时期的桥梁分布广泛，工艺精湛，成为各地人文景观的重要组成部分，承载着丰富的民俗文化。",
+            type: " 代表类型：廊桥 · 联拱石桥",
+            img: "material//明清.jpg",
+            fallback: "https://picsum.photos/id/130/400/260"
+        }
+    ];
+
+    // 获取DOM元素
+    const periodBadge = document.getElementById('periodBadge');
+    const descText = document.getElementById('descText');
+    const bridgeTypeTag = document.getElementById('bridgeTypeTag');
+    const periodImg = document.getElementById('periodImg');
+    const timelineItems = document.querySelectorAll('.timeline-item');
+
+    // 切换内容的函数 (布局稳定，无高度跳动)
+    function showContent(index) {
+        // 更新激活状态 - 仅改变类名，不改变节点结构
+        timelineItems.forEach((item, i) => {
+            if (i === index) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        const data = timelineData[index];
+        if (!data) return;
+
+        // 更新文字内容
+        periodBadge.textContent = data.period;
+        descText.innerHTML = data.desc;
+        bridgeTypeTag.textContent = data.type;
+
+        // 更新图片，处理加载失败情况
+        if (data.img && data.img !== "") {
+            periodImg.src = data.img;
+            periodImg.onerror = function() {
+                this.src = data.fallback || "https://picsum.photos/id/20/400/260?grayscale";
+                this.onerror = null;
+            };
+        } else {
+            periodImg.src = data.fallback || "https://picsum.photos/id/97/400/260";
+        }
+    }
+
+    // 绑定时间轴点击事件
+    timelineItems.forEach((item, idx) => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showContent(idx);
+        });
+    });
+
+    // 跳转函数
+    function go(url) {
+        location.href = url;
+    }
+
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 确保第一张图片容错
+        const firstImg = document.getElementById('periodImg');
+        if (firstImg && firstImg.src && firstImg.src.includes('古桥-史前商周.jpg')) {
+            firstImg.onerror = function() {
+                this.src = "https://picsum.photos/id/115/400/260?grayscale";
+            };
+        }
+        
+        // 确保时间轴区域初始布局稳定
+        console.log("历史演进页 · 国风统一风格已加载，右上角菜单样式与首页完全一致");
+        
+        // 额外处理：在移动端确保菜单背景与首页一致（如果存在背景滚动问题，修复固定定位样式）
+        // 确保所有按钮样式与首页的.btn完全一致（已经一致，无需额外操作）
+        const allBtns = document.querySelectorAll('.btn');
+        allBtns.forEach(btn => {
+            // 确保样式内联不覆盖，已经通过CSS统一
+            if (window.getComputedStyle(btn).fontSize !== '18px' && window.innerWidth > 800) {
+                // 针对桌面端确保字体大小一致，但CSS已定义，无需强制
+            }
+        });
+    });
+    
+    // 监听窗口resize，确保在屏幕尺寸变化时菜单样式行为与首页一致（无需额外逻辑，CSS媒体查询已统一）
+    window.addEventListener('resize', function() {
+        // 小屏下菜单背景和按钮尺寸跟随CSS变化，与首页一致
+        const isMobile = window.innerWidth <= 800;
+        const menuDiv = document.querySelector('.menu');
+        if (menuDiv) {
+            if (isMobile) {
+                // 确保移动端与首页相同：背景半透、内边距一致（由CSS负责）
+                // 无需额外操作，CSS已经定义 @media 规则
+            } else {
+                // 桌面端恢复透明背景（默认无背景）
+                if (menuDiv.style.background) menuDiv.style.background = '';
+            }
+        }
+    });
+</script>
+</body>
+</html>

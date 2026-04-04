@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四桥古鉴</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:#f8f4e8;
+    font-family:"楷体";
+    padding:60px 20px;
+    position:relative;
+    min-height:100vh;
+}
+/* 返回首页按钮 */
+.back{
+    position:absolute;top:20px;right:30px;
+    padding:10px 20px;
+    background:#8b5a2b;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:18px;
+    font-family:"楷体";
+}
+/* 页面标题 */
+.page-title{
+    text-align:center;
+    font-size:40px;
+    color:#333;
+    margin-bottom:60px;
+}
+/* 2×2照片容器（限制宽度，防止页面乱） */
+.bridge-grid{
+    max-width:800px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:40px;
+    padding:0 20px;
+}
+/* 单张桥卡片 */
+.bridge-card{
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.3s ease;
+}
+/* 照片样式（核心！尺寸+裁剪） */
+.bridge-img{
+    width:100%;
+    max-width:300px; /* 再缩小到300px，更适配 */
+    height:200px;    /* 高度也缩小，比例更协调 */
+    object-fit:cover;
+    border-radius:12px;
+    border:3px solid #2e64aa;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    transition:transform 0.3s ease, box-shadow 0.3s ease;
+    display:block;
+    margin:0 auto;
+}
+/* 悬浮效果 */
+.bridge-card:hover .bridge-img{
+    transform:translateY(-10px);
+    box-shadow:0 10px 20px rgba(0,0,0,0.2);
+}
+/* 桥名文字 */
+.bridge-name{
+    font-size:24px;
+    color:#333;
+    margin-top:15px;
+    transition:color 0.3s ease;
+}
+.bridge-card:hover .bridge-name{
+    color:#2e64aa;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+<button class="back" onclick="go('2home_page.html')">返回首页</button>
+<div class="page-title">四大古桥 · 千年瑰宝</div>
+
+<div class="bridge-grid">
+    <!-- 赵州桥：class改回bridge-img！ -->
+    <div class="bridge-card" onclick="go('5the_zhaozhou_bridge.html')">
+        <img src="material//赵州桥.jpg" class="bridge-img">
+        <div class="bridge-name">赵州桥</div>
+    </div>
+    <!-- 卢沟桥：class改回bridge-img！ -->
+    <div class="bridge-card" onclick="go('6lugou_bridge.html')">
+        <img src="material//卢沟桥.jpg" class="bridge-img">
+        <div class="bridge-name">卢沟桥</div>
+    </div>
+    <!-- 洛阳桥：class改回bridge-img！ -->
+    <div class="bridge-card" onclick="go('7luoyang_bridge.html')">
+        <img src="material//洛阳桥.jpg" class="bridge-img">
+        <div class="bridge-name">洛阳桥</div>
+    </div>
+    <!-- 广济桥：class改回bridge-img！ -->
+    <div class="bridge-card" onclick="go('8guangji_bridge.html')">
+        <img src="material//广济桥.jpg" class="bridge-img">
+        <div class="bridge-name">广济桥</div>
+    </div>
+</div>
+
+<script>
+function go(url){
+    location.href = url;
+}
+</script>
+</body>
+</html>

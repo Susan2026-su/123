@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>卢沟桥石狮子 - 四桥古鉴 | 灵狮百态</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    background:#f7f3ee;
+    font-family:"楷体","STKaiti","华文楷书","Microsoft YaHei",serif;
+    padding:60px 20px;
+    color:#3a3a3a;
+}
+
+/* 按钮 */
+.back{
+    position:fixed;
+    top:20px;
+    right:30px;
+    padding:10px 22px;
+    background:#c89b85;
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+    font-family:inherit;
+    font-size:16px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    z-index:100;
+}
+.back:hover{
+    transform:scale(1.05);
+    background:#b46f58;
+}
+.back-left{left:30px;right:auto}
+
+/* 标题 */
+.page-title{
+    text-align:center;
+    font-size:42px;
+    margin-bottom:10px;
+    color:#b86b55;
+    letter-spacing:2px;
+}
+.sub-title{
+    text-align:center;
+    color:#888;
+    margin-bottom:40px;
+    font-size:18px;
+}
+
+/* ===== 卡片滑动 ===== */
+.viewer{
+    max-width:1000px;
+    margin:0 auto;
+    position:relative;
+}
+.slide{display:none;}
+.slide.active{display:block;}
+
+.card{
+    display:flex;
+    gap:26px;
+    background:#fff;
+    border-radius:20px;
+    padding:26px;
+    border:2px dashed #e6cfc3;
+    position:relative;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card::before{
+    content:"🦁🦁";
+    position:absolute;
+    top:-12px;
+    left:12px;
+    background:#fff0e6;
+    padding:0 8px;
+    border-radius:30px;
+    font-size:14px;
+}
+
+.card img{
+    width:45%;
+    height:300px;
+    object-fit:cover;
+    border-radius:12px;
+    transition: transform 0.3s ease;
+    background:#e9e2d9;
+}
+
+.card img:hover{
+    transform:scale(1.03);
+}
+
+.card-text{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+.card-text h3{
+    font-size:30px;
+    color:#b86b55;
+    margin-bottom:12px;
+    font-weight:bold;
+}
+.card-text p{
+    font-size:20px;
+    line-height:1.9;
+    color:#666;
+}
+
+/* 切换按钮 */
+.nav-btn{
+    position:absolute;
+    top:45%;
+    transform:translateY(-50%);
+    background:#c89b85;
+    color:#fff;
+    border:none;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    transition:0.3s;
+    z-index:10;
+}
+.nav-btn:hover{
+    transform:translateY(-50%) scale(1.1);
+    background:#b46f58;
+}
+.prev{left:-50px}
+.next{right:-50px}
+
+@media (max-width:780px){
+    .card{flex-direction:column;}
+    .card img{width:100%;height:240px;}
+    .prev{left:-20px}
+    .next{right:-20px}
+    .nav-btn{width:36px;height:36px;}
+}
+
+/* ===== 游戏 ===== */
+.game-box{
+    max-width:1000px;
+    margin:60px auto;
+    background:#fff;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+h2{
+    font-size:30px;
+    margin-bottom:20px;
+    color:#b86b55;
+    font-weight:bold;
+}
+
+.option{
+    padding:16px;
+    border:1px solid #e5d9d2;
+    border-radius:12px;
+    cursor:pointer;
+    margin:8px;
+    font-size:18px;
+    text-align:center;
+    background-color:#f0e2d4;
+    transition: all 0.3s ease;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+    font-family:inherit;
+}
+
+.option:hover{
+    background:#f2e3db;
+    transform:scale(1.02);
+}
+
+.game-box button{
+    margin-top:10px;
+    padding:8px 20px;
+    background:#c89b85;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.2s;
+}
+.game-box button:hover{
+    background:#b46f58;
+}
+#score{
+    margin-top:20px;
+    font-size:18px;
+    color:#b86b55;
+    font-weight:bold;
+}
+
+/* ===== 星星特效 ===== */
+.star{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    font-size:130px;
+    opacity:0;
+    pointer-events:none;
+    z-index:9999;
+}
+.star.show{
+    animation:boom 0.9s;
+}
+@keyframes boom{
+    0%{transform:translate(-50%,-50%) scale(0);opacity:0;}
+    50%{transform:translate(-50%,-50%) scale(1.6);opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(1);opacity:0;}
+}
+
+/* 连击 */
+.combo{
+    position:fixed;
+    top:120px;
+    right:40px;
+    font-size:30px;
+    color:#e76f51;
+    opacity:0;
+    font-weight:bold;
+    background:rgba(255,245,235,0.8);
+    padding:6px 15px;
+    border-radius:40px;
+    pointer-events:none;
+    z-index:1000;
+}
+.combo.show{
+    animation:pop 0.6s;
+}
+@keyframes pop{
+    0%{transform:scale(0);}
+    50%{transform:scale(1.3);}
+    100%{transform:scale(1);}
+}
+
+/* 粒子 */
+.particle{
+    position:fixed;
+    font-size:20px;
+    pointer-events:none;
+    animation:float 1s linear forwards;
+    z-index:10000;
+}
+@keyframes float{
+    to{transform:translateY(-100px);opacity:0;}
+}
+
+/* 可爱弹窗样式 */
+.modal-overlay{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+.modal-box{
+    background:#fff;
+    width:90%;
+    max-width:380px;
+    padding:30px 25px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    border:3px solid #f2d0c1;
+    position:relative;
+}
+.modal-box::before{
+    content:"🦁";
+    font-size:50px;
+    display:block;
+    margin-bottom:10px;
+}
+.modal-title{
+    font-size:26px;
+    color:#b86b55;
+    margin-bottom:15px;
+}
+.modal-info{
+    font-size:18px;
+    line-height:1.8;
+    color:#555;
+    margin-bottom:10px;
+}
+.modal-level{
+    font-size:22px;
+    font-weight:bold;
+    color:#e76f51;
+    margin:15px 0;
+}
+.modal-close{
+    margin-top:20px;
+    padding:10px 25px;
+    background:#c89b85;
+    color:white;
+    border:none;
+    border-radius:15px;
+    font-size:16px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<button class="back" onclick="location.href='4four_bridges.html'">🏛️ 返回四桥古鉴</button>
+<button class="back back-left" onclick="location.href='6lugou_bridge.html'">← 回到卢沟桥</button>
+
+<h1 class="page-title">🦁 卢沟桥的石狮子</h1>
+<p class="sub-title">一狮一姿态 · 一雕一匠心 · 千年守望</p>
+
+<!-- ===== 滑动卡片 ===== -->
+<div class="viewer">
+<button class="nav-btn prev" onclick="change(-1)">◀</button>
+<button class="nav-btn next" onclick="change(1)">▶</button>
+
+<div class="slide active">
+<div class="card">
+<img src="material//lion1.jpg" alt="昂首雄狮" onerror="this.src='https://picsum.photos/id/104/400/300?grayscale';">
+<div class="card-text">
+<h3>昂首雄狮</h3>
+<p>昂首挺胸，目光远望，气势沉稳威严，是卢沟桥最具代表性的守护石狮。它象征镇守一方、护佑平安，姿态刚劲有力，尽显北方石雕雄浑大气的气质，也是桥上最具威仪的经典造型。</p>
+</div>
+</div>
+</div>
+
+<div class="slide">
+<div class="card">
+<img src="material//lion2.jpg" alt="母子狮" onerror="this.src='https://picsum.photos/id/106/400/300?grayscale';">
+<div class="card-text">
+<h3>母子狮</h3>
+<p>母狮温柔环抱幼狮，小狮子或依偎怀中，或攀爬嬉戏，是卢沟桥最温情的经典形象。它不仅展现动物天性中的亲情暖意，更暗含传统家庭伦理与生生不息的文化内涵，充满人情味。</p>
+</div>
+</div>
+</div>
+
+<div class="slide">
+<div class="card">
+<img src="material//lion3.jpg" alt="静思狮" onerror="this.src='https://picsum.photos/id/20/400/300?grayscale';">
+<div class="card-text">
+<h3>静思狮</h3>
+<p>低首内敛，神态沉静安详，线条柔和流畅，呈现东方美学独有的含蓄与静气。这类石狮气质文雅温润，褪去了威严凌厉，多为明清时期雕刻，极具艺术观赏价值与人文气息。</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ===== 游戏 ===== -->
+<div class="game-box">
+<h2>🎮 石狮·文脉挑战</h2>
+
+<div id="question" style="font-size:22px; margin-bottom:20px; font-weight:500;">点击【开始】 考验你对卢沟桥的了解</div>
+
+<div class="option" onclick="answer(0)"></div>
+<div class="option" onclick="answer(1)"></div>
+<div class="option" onclick="answer(2)"></div>
+<div class="option" onclick="answer(3)"></div>
+
+<button onclick="startGame()">✨ 开始挑战 ✨</button>
+
+<div id="score"></div>
+</div>
+
+<!-- 特效 -->
+<div class="star" id="star">⭐</div>
+<div class="combo" id="combo"></div>
+
+<!-- 可爱弹窗 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal-box">
+        <div class="modal-title">🎉 挑战完成！</div>
+        <div class="modal-info" id="modalText"></div>
+        <div class="modal-level" id="modalLevel"></div>
+        <button class="modal-close" onclick="closeModal()">灵狮认可 ✨</button>
+    </div>
+</div>
+
+<!-- 音效 (免打扰但保留优雅) -->
+<audio id="ok" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b0f5c.mp3" preload="none"></audio>
+<audio id="no" src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c8f0a4e8c.mp3" preload="none"></audio>
+
+<script>
+
+// 滑动卡片
+let cur=0;
+const slides=document.querySelectorAll(".slide");
+function change(d){
+slides[cur].classList.remove("active");
+cur=(cur+d+slides.length)%slides.length;
+slides[cur].classList.add("active");
+}
+
+// 星星特效
+function starBurst(){
+let s=document.getElementById("star");
+s.classList.remove("show");
+void s.offsetWidth;
+s.classList.add("show");
+}
+
+// 粒子特效
+function createParticles(x,y){
+for(let i=0;i<12;i++){
+let p=document.createElement("div");
+p.className="particle";
+p.innerText=["✨","⭐","💫","🦁"][Math.floor(Math.random()*4)];
+p.style.left=x+"px";
+p.style.top=y+"px";
+document.body.appendChild(p);
+setTimeout(()=>p.remove(),1000);
+}
+}
+
+// 连击系统
+let combo=0;
+function updateCombo(){
+let c=document.getElementById("combo");
+if(combo>=2){
+c.innerText="🔥 连击 x"+combo;
+c.style.opacity=1;
+c.classList.remove("show");
+void c.offsetWidth;
+c.classList.add("show");
+} else if(combo===1){
+c.style.opacity=0;
+}
+}
+
+// ========= 题库扩充 (共计16题，涵盖历史、石狮、文化、建筑等) =========
+const bank=[
+{q:"卢沟桥位于中国哪座城市？",o:["北京","南京","西安","洛阳"],a:0},
+{q:"卢沟桥建于哪个朝代？",o:["唐朝","金朝","宋朝","明朝"],a:1},
+{q:"卢沟桥跨越哪条河流？",o:["黄河","长江","永定河","淮河"],a:2},
+{q:"卢沟桥石狮大约多少尊？(含隐藏小狮)",o:["365","501","800","1200"],a:1},
+{q:"“七七事变”发生于哪一年？",o:["1931","1937","1945","1911"],a:1},
+{q:"卢沟桥属于什么类型的桥梁？",o:["木桥","悬索桥","联拱石桥","石板桥"],a:2},
+{q:"石狮在古代建筑中主要象征什么？",o:["娱乐装饰","镇宅守护","财富象征","权力荣耀"],a:1},
+{q:"卢沟桥上的“母子狮”主要寓意？",o:["战争勇猛","亲情慈爱","皇权至上","科举高中"],a:1},
+{q:"怒目圆睁的狮子常用于什么功能？",o:["点缀风景","镇邪驱祟","祈雨求福","计时报更"],a:1},
+{q:"卢沟桥全长约多少米？",o:["100米","266.5米","500米","188米"],a:1},
+// ----- 新增6道丰富题目 (保留原味，增加深度) -----
+{q:"卢沟桥是“燕京八景”之一，其著名景观名为？",o:["卢沟晓月","琼岛春阴","金台夕照","蓟门烟树"],a:0},
+{q:"卢沟桥石狮子的雕刻时代跨越了多个朝代，最早可追溯到？",o:["唐代","金代","元代","明代"],a:1},
+{q:"著名的《马可·波罗游记》中盛赞卢沟桥，称它为？",o:["世界上独一无二的桥","普利桑干桥","白玉长桥","东方奇迹桥"],a:1},
+{q:"卢沟桥桥栏望柱上的石狮，除了雄狮、母狮外，还常见哪种有趣造型？",o:["幼狮嬉戏","麒麟合体","龙首狮身","象鼻狮"],a:0},
+{q:"卢沟桥文物保护级别是？",o:["省级文物保护单位","全国重点文物保护单位","世界文化遗产","国家5A级景区"],a:1},
+{q:"“卢沟桥的狮子——数不清”是一句著名的歇后语，反映了石狮什么特点？",o:["数量众多且雕刻隐蔽","经常被偷","每年增多","游客眼花"],a:0}
+];
+
+// 游戏状态
+let questions=[];
+let index=0;
+let score=0;
+let startTime=0;
+let canAnswer=true;     // 防止连点
+
+function startGame(){
+// 随机抽取5道不重复题目 (从bank中随机取5)
+let shuffled = [...bank];
+for(let i=shuffled.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1));
+[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+}
+questions = shuffled.slice(0,5);
+index=0;
+score=0;
+combo=0;
+canAnswer=true;
+startTime=Date.now();
+
+document.getElementById("score").innerHTML="";
+document.getElementById("combo").style.opacity="0";
+nextQuestion();
+}
+
+function nextQuestion(){
+if(!canAnswer) return;
+if(index>=questions.length){
+endGame();
+return;
+}
+
+let q=questions[index];
+document.getElementById("question").innerHTML=q.q;
+
+let opts=document.querySelectorAll(".option");
+for(let i=0;i<opts.length;i++){
+opts[i].innerText=q.o[i];
+opts[i].style.pointerEvents="auto";
+opts[i].style.background="#f0e2d4";
+opts[i].style.border="1px solid #e5d9d2";
+}
+}
+
+function answer(selectedIdx){
+if(!canAnswer) return;
+let q=questions[index];
+let opts=document.querySelectorAll(".option");
+// 锁定本题目不再重复点击
+canAnswer=false;
+opts.forEach(el=>el.style.pointerEvents="none");
+
+// 判断正误
+if(selectedIdx===q.a){
+score++;
+combo++;
+updateCombo();
+starBurst();
+let okAudio=document.getElementById("ok");
+okAudio.play().catch(e=>console.log("音效自动播放限制"));
+opts[selectedIdx].style.background="#d8f3dc";
+// 额外粒子
+if(event && event.clientX){
+createParticles(event.clientX,event.clientY);
+}else{
+createParticles(window.innerWidth/2,window.innerHeight/2);
+}
+}else{
+combo=0;
+let comboDiv=document.getElementById("combo");
+comboDiv.style.opacity=0;
+let noAudio=document.getElementById("no");
+noAudio.play().catch(e=>console.log("音效限制"));
+opts[selectedIdx].style.background="#f8d7da";
+opts[q.a].style.background="#d8f3dc";
+if(event && event.clientX){
+createParticles(event.clientX,event.clientY);
+}
+}
+index++;
+// 延迟加载下一题，让视觉效果明显
+setTimeout(()=>{
+canAnswer=true;
+nextQuestion();
+},800);
+}
+
+function endGame(){
+let timeUsed=(Date.now()-startTime)/1000;
+// 总分机制: 答对每题20分 + 时间奖励 (最快30秒内额外加成) + 连击加成
+let timeBonus = Math.max(0, 60 - timeUsed*2);
+if(timeBonus>35) timeBonus=35;
+let finalScore = (score*20) + Math.floor(timeBonus) + (combo*4);
+finalScore = Math.floor(finalScore);
+if(finalScore<0) finalScore=0;
+
+let level="🪨 初识石狮 · 见习守护者";
+if(finalScore>=90 && finalScore<130) level="🥈 银狮学士 · 望柱知音";
+if(finalScore>=130 && finalScore<170) level="🥇 金狮尊者 · 桥畔行者";
+if(finalScore>=170) level="👑 万狮通灵 · 卢沟宗师";
+
+let summary = `
+📜 答对：${score} / 5 题<br>
+⏱️ 用时：${timeUsed.toFixed(1)} 秒<br>
+⚡ 最高连击：${combo} 次<br>
+🏆 总分：${finalScore} 分
+`;
+
+document.getElementById("modalText").innerHTML = summary;
+document.getElementById("modalLevel").innerHTML = level;
+document.getElementById("modal").style.display = "flex";
+
+document.getElementById("score").innerHTML=`✨ 得分：${score} | 用时：${timeUsed.toFixed(1)}s | 连击：${combo} ✨`;
+}
+
+function closeModal(){
+document.getElementById("modal").style.display = "none";
+// 重置游戏显示区，但保留展示上一次结果，不自动重置，方便玩家再次开始
+document.getElementById("score").innerHTML="点击【开始挑战】解锁狮语";
+}
+
+// 初始化给游戏区域默认文字
+window.onload=function(){
+document.getElementById("question").innerHTML="🦁 点击上方「开始挑战」· 探寻石狮之谜 🦁";
+let opts=document.querySelectorAll(".option");
+opts[0].innerText="✨ 石狮千年 ✨";
+opts[1].innerText="✨ 匠心永存 ✨";
+opts[2].innerText="✨ 桥映晓月 ✨";
+opts[3].innerText="✨ 数狮无穷 ✨";
+opts.forEach(el=>el.style.pointerEvents="none");
+}
+
+// 响应式调整粒子坐标备用
+document.addEventListener('click',function(e){
+if(e.target.closest('.option') && !canAnswer) return;
+});
+</script>
+</body>
+</html>
+```

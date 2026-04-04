@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>首页 - 枕水听桥 · 水韵千年</title>
+<style>
+/* 全局样式重置 & 国风基调 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f6f1e6;
+    font-family: "楷体", "宋体", "Microsoft YaHei", serif;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+}
+
+/* 右上角菜单 - 固定定位，不跟随页面滚动 */
+.menu {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    z-index: 1000;
+
+    
+}
+.btn {
+    padding: 10px 15px;
+    background: #8b5a2b;
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: "楷体", "宋体", serif;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    letter-spacing: 1px;
+}
+.btn:hover {
+    background: #6d4424;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* 页面主标题 */
+h1 {
+    text-align: center;
+    font-size: 60px;
+    color: #2e4a2c;
+    margin: 80px 0 40px 0;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.08);
+    letter-spacing: 6px;
+    font-weight: normal;
+    background: linear-gradient(135deg, #3a6b2f, #8b5a2b);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: none;
+}
+/* 为了兼容性保留传统颜色备选 */
+@supports not (background-clip: text) {
+    h1 { color: #4a2e1a; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+}
+
+/* 核心布局：左右弹性 */
+.main-layout {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* 左侧地图容器 */
+.map-container {
+    width: 540px;
+    height: 620px;
+    border: 4px solid #c7a55b;
+    border-radius: 24px;
+    background: #fef7e8;
+    padding: 12px;
+    position: relative;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+/* 中国地图底图：使用指定真实图片 */
+.china-map {
+    width: 100%;
+    height: 100%;
+    background: url("material//中国地图.jpg") no-repeat center center;
+    background-size: contain;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* 桥标记容器 */
+.bridge-marker {
+    position: absolute;
+    cursor: pointer;
+    z-index: 15;
+    width: 0;
+    height: 0;
+}
+
+/* 核心视觉: 外圈光晕+红色核心点 */
+.marker-dot {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #cd5c5c;
+    border: 2px solid #fff8e7;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #e63946, 0 0 0 5px rgba(230, 57, 70, 0.2);
+    transform: translate(-50%, -50%);
+    transition: all 0.25s ease;
+    z-index: 16;
+    cursor: pointer;
+}
+
+/* 延伸虚线（从圆心往外放射一段距离） */
+.dash-line {
+    position: absolute;
+    background: repeating-linear-gradient(90deg, #e6b422, #e6b422 6px, transparent 6px, transparent 12px);
+    height: 2px;
+    transform-origin: left center;
+    width: 52px;
+    top: 50%;
+    left: 50%;
+    transform: translate(0%, -50%) rotate(0deg);
+    pointer-events: none;
+    z-index: 14;
+    opacity: 0.85;
+}
+
+/* 为每个点单独定义虚线的旋转角度和偏移 */
+.marker-1 .dash-line { transform: translate(0%, -50%) rotate(50deg); width: 60px; left: 50%; top: 50%; }
+.marker-2 .dash-line { transform: translate(0%, -50%) rotate(120deg); width: 64px; left: 50%; top: 50%; }
+.marker-3 .dash-line { transform: translate(0%, -50%) rotate(180deg); width: 60px; left: 50%; top: 50%; }
+.marker-4 .dash-line { transform: translate(0%, -50%) rotate(-120deg); width: 60px; left: 50%; top: 50%; }
+
+/* 悬浮效果增强 - 针对所有桥标记的通用效果（红点放大） */
+.bridge-marker:hover .marker-dot {
+    transform: translate(-50%, -50%) scale(1.3);
+    background: #e63946;
+    box-shadow: 0 0 0 4px #ffb347, 0 0 0 8px rgba(230, 57, 70, 0.3);
+}
+
+/* 前三个桥的虚线悬浮延长效果 */
+.bridge-marker.marker-1:hover .dash-line,
+.bridge-marker.marker-3:hover .dash-line,
+.bridge-marker.marker-4:hover .dash-line {
+    background: repeating-linear-gradient(90deg, #ffaa33, #ffaa33 6px, transparent 6px, transparent 12px);
+    width: 60px;
+    transition: width 0.2s;
+}
+/*卢沟桥*/
+.bridge-marker.marker-2:hover .dash-line {
+    background: repeating-linear-gradient(90deg, #ffaa33, #ffaa33 6px, transparent 6px, transparent 12px);
+    width: 64px;
+    transition: width 0.2s;
+}
+
+
+/* 悬浮小卡标签 (跟随标记位置) */
+.marker-label {
+    position: fixed;
+    background: rgba(35, 45, 35, 0.85);
+    backdrop-filter: blur(6px);
+    color: #fef0cf;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 30px;
+    white-space: nowrap;
+    font-family: "楷体", "宋体";
+    letter-spacing: 1px;
+    border-left: 3px solid #e6b422;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    z-index: 1001;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* 自适应弹窗卡片 - 位置固定不跟随鼠标移动 */
+.info-popup {
+    position: fixed;
+    z-index: 1002;
+    width: 280px;
+    padding: 18px 22px;
+    background: #fffdf7;
+    border: 1px solid #dbb87c;
+    border-radius: 28px;
+    box-shadow: 0 20px 35px rgba(40, 25, 10, 0.25);
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2c2b26;
+    display: none;
+    backdrop-filter: blur(2px);
+    font-family: "楷体", "宋体", serif;
+    transition: opacity 0.2s;
+    border-top: 4px solid #c7a55b;
+    pointer-events: auto;
+    cursor: default;
+}
+
+.info-popup strong {
+    color: #bc6f2c;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+    border-left: 3px solid #e6b422;
+    padding-left: 12px;
+}
+
+/* 右侧文本框 */
+.text-boxes {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+.box {
+    border: 2px solid #c2a15b;
+    border-radius: 28px;
+    background: rgba(255, 252, 240, 0.92);
+    padding: 28px 26px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    backdrop-filter: blur(2px);
+}
+.box:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 252, 240, 0.98);
+}
+.box-title {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 18px;
+    color: #7a511e;
+    border-bottom: 2px dashed #dbb87c;
+    display: inline-block;
+    width: auto;
+    padding-bottom: 6px;
+    letter-spacing: 3px;
+}
+.box-content {
+    font-size: 18px;
+    line-height: 1.85;
+    text-align: justify;
+    color: #3a3222;
+    text-indent: 2em;
+}
+
+/* 响应式调整 */
+@media (max-width: 1000px) {
+    .map-container { width: 480px; height: 560px; }
+    .info-popup { width: 260px; font-size: 14px; padding: 14px 18px; }
+    h1 { font-size: 44px; }
+    .btn { padding: 8px 16px; font-size: 16px; }
+    .menu { gap: 12px; top: 12px; right: 16px; padding: 4px 10px; }
+}
+
+@media (max-width: 760px) {
+    .menu {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        background: rgba(246, 241, 230, 0.9);
+        gap: 8px;
+        padding: 5px 8px;
+    }
+    .btn { padding: 6px 12px; font-size: 13px; }
+    .map-container { width: 95%; height: auto; max-width: 500px; aspect-ratio: 5 / 6; }
+    .china-map { background-size: cover; }
+    .bridge-marker { transform: scale(0.9); }
+    h1 { font-size: 32px; margin: 70px 0 20px 0; }
+    .box-title { font-size: 24px; }
+    .box-content { font-size: 16px; }
+    .info-popup { width: 240px; padding: 12px 16px; font-size: 13px; }
+    .marker-label { font-size: 11px; padding: 4px 10px; }
+}
+
+/* 增加地图底部装饰 */
+.china-map::after {
+    content: "⚓ 千年桥韵 · 悬停览胜";
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #bc9a6c;
+    background: rgba(255,250,230,0.7);
+    padding: 2px 8px;
+    border-radius: 20px;
+    pointer-events: none;
+    font-family: "楷体", monospace;
+    white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- 右上角导航菜单 - 固定定位，不随页面滚动 -->
+<div class="menu">
+    <button class="btn" onclick="go('3historical_evolution.html')">📜 历史演进</button>
+    <button class="btn" onclick="go('4four_bridges.html')">🌉 四桥古鉴</button>
+    <button class="btn" onclick="go('9summary.html')">🍃 桥韵小结</button>
+    <button class="btn" onclick="go('index.html')">🏠 返回封面</button>
+</div>
+
+<h1>枕水听桥 · 水韵千年</h1>
+
+<div class="main-layout">
+    <!-- 左侧中国地图区块 -->
+    <div class="map-container">
+        <div class="china-map" id="chinaMapLayer">
+            <!-- 四大古桥标注点 (坐标保留原始相对位置) -->
+            <div class="bridge-marker marker-1" data-bridge="zhaozhou" data-name="赵州桥" style="position: absolute; top: 200px; left: 330px;">
+                <div class="marker-dot"></div>
+                <div class="dash-line"></div>
+            </div>
+            <div class="bridge-marker marker-2" data-bridge="lugou" data-name="卢沟桥" style="position: absolute; top: 192px; left: 405px;">
+                <div class="marker-dot"></div>
+                <div class="dash-line"></div>
+            </div>
+            <div class="bridge-marker marker-3" data-bridge="luoyang" data-name="洛阳桥" style="position: absolute; top: 400px; left: 470px;">
+                <div class="marker-dot"></div>
+                <div class="dash-line"></div>
+            </div>
+            <div class="bridge-marker marker-4" data-bridge="guangji" data-name="广济桥" style="position: absolute; top: 480px; left: 390px;">
+                <div class="marker-dot"></div>
+                <div class="dash-line"></div>
+            </div>
+        </div>
+    </div>
+
+   <!-- 右侧文字框 -->
+    <div class="text-boxes">
+        <div class="box">
+            <div class="box-title">桥梁概况</div>
+            <div class="box-content">
+                <strong>桥梁</strong>，是华夏文明跨越天堑的智慧结晶，更是“天人合一”理念的具象载体。作为集实用与美学于一体的建筑瑰宝，中国古桥历经先秦萌芽、秦汉发展、隋唐鼎盛、宋元精进、明清成熟的千年演进，构建起独树一帜的<strong>东方造桥体系</strong>。从独木为梁的古朴，到石拱飞虹的精巧，从跨江跨海的雄阔，到廊桥听雨的雅致，古桥串联起华夏阡陌交通，承载着礼制传承、民俗风情与诗画意境，成为世界桥梁史上不可替代的文化瑰宝。
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="box-title">桥梁简介</div>
+            <div class="box-content">
+                中国古桥起源于<strong>远古时期</strong>先民跨越江河的生存实践，历经技术迭代，演化出石拱桥、石梁桥、廊桥、吊桥等多元形制。其中，<strong>赵州桥、卢沟桥、洛阳桥、广济桥</strong>被公认为中国四大古桥，分别代表了敞肩拱、联拱、跨海石桥、启闭式桥梁的<strong>工艺巅峰</strong>。古桥早已超越交通载体属性，深度融入山水、城镇与民俗，成为历史、文学、艺术交融的文化符号，见证了<strong>中华文明的绵延与传承。</strong>
+        </div>
+    </div>
+</div>
+
+<!-- 四个独立弹窗内容，位置由JS在悬停时固定计算，不随鼠标移动而改变 -->
+<div id="popup-zhaozhou" class="info-popup">
+    <strong>🌉 赵州桥 · 河北</strong>
+    隋代匠师李春建造，世界现存最古老的敞肩石拱桥。桥身全长50.82米，主拱跨度37.02米，千年岿然，誉为"天下第一桥"。<br>📍 安济古韵，石拱之祖。
+</div>
+<div id="popup-lugou" class="info-popup">
+    <strong>🪶 卢沟桥 · 北京</strong>
+    金代大定年间始建，联拱石桥代表，"卢沟晓月"燕京八景之一。桥上501只石狮姿态各异，见证沧桑。<br>🌙 晓月映狮，古今辉映。
+</div>
+<div id="popup-luoyang" class="info-popup">
+    <strong>🌿 洛阳桥 · 福建</strong>
+    北宋泉州太守蔡襄主持建造，中国首座跨海梁式大石桥，首创"筏形基础""种蛎固基"法，为海丝起点留下奇迹。<br>🐚 跨海长虹，牡蛎固基。
+</div>
+<div id="popup-guangji" class="info-popup">
+    <strong>🎋 广济桥 · 广东</strong>
+    南宋乾道年间始建，世界第一座启闭式浮梁结合桥，集梁桥、浮桥、拱桥于一体。"廿四楼台廿四样"，潮州八景之冠。<br>🌉 过河拆桥，古韵奇观。
+</div>
+
+<script>
+    // 页面跳转函数
+    function go(url) {
+        location.href = url;
+    }
+
+    // 核心交互: 鼠标悬停显示弹窗，弹窗位置固定于悬停时的标记附近，不随鼠标移动而改变
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有桥标记
+        const markers = document.querySelectorAll('.bridge-marker');
+        
+        // 弹窗映射
+        const popupMap = {
+            'zhaozhou': document.getElementById('popup-zhaozhou'),
+            'lugou': document.getElementById('popup-lugou'),
+            'luoyang': document.getElementById('popup-luoyang'),
+            'guangji': document.getElementById('popup-guangji')
+        };
+        
+        // 用于存放当前显示的弹窗以及定时器
+        let activePopup = null;
+        let activeBridgeKey = null;
+        let hideTimeout = null;
+        
+        // 辅助隐藏所有弹窗
+        function hideAllPopups() {
+            if (hideTimeout) clearTimeout(hideTimeout);
+            for (let key in popupMap) {
+                if (popupMap[key]) {
+                    popupMap[key].style.display = 'none';
+                    popupMap[key].style.opacity = '0';
+                }
+            }
+            activePopup = null;
+            activeBridgeKey = null;
+        }
+        
+        // 智能弹窗定位函数（仅在首次显示时调用，固定位置）
+        function positionPopupAtAnchor(popup, anchorX, anchorY) {
+            // 获取弹窗尺寸
+            popup.style.display = 'block';
+            popup.style.visibility = 'hidden';
+            popup.style.opacity = '0';
+            
+            const popupRect = popup.getBoundingClientRect();
+            const popupWidth = popupRect.width;
+            const popupHeight = popupRect.height;
+            
+            // 默认偏移：相对于锚点向右下偏移，避免遮挡标记
+            let left = anchorX + 20;
+            let top = anchorY - 30;
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // 边界检测 - 右边界溢出则显示在左侧
+            if (left + popupWidth + 15 > viewportWidth) {
+                left = anchorX - popupWidth - 20;
+            }
+            // 左边界溢出则靠右
+            if (left < 10) {
+                left = anchorX + 25;
+                if (left + popupWidth > viewportWidth - 10) {
+                    left = viewportWidth - popupWidth - 10;
+                }
+            }
+            // 底部边界溢出则显示在上方
+            if (top + popupHeight + 15 > viewportHeight) {
+                top = anchorY - popupHeight - 15;
+            }
+            // 顶部边界溢出则显示在下方
+            if (top < 10) {
+                top = anchorY + 20;
+                if (top + popupHeight > viewportHeight - 10) {
+                    top = viewportHeight - popupHeight - 10;
+                }
+            }
+            
+            popup.style.left = Math.max(8, left) + 'px';
+            popup.style.top = Math.max(8, top) + 'px';
+            popup.style.visibility = 'visible';
+            popup.style.opacity = '1';
+        }
+        
+        // 显示特定弹窗，位置基于标记的锚点（标记中心点），固定不跟随鼠标
+        function showPopupForBridge(bridgeKey, markerElement) {
+            // 清除隐藏定时器
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
+            }
+            
+            const popup = popupMap[bridgeKey];
+            if (!popup) return;
+            
+            // 如果当前显示的是同一个弹窗，不重复操作
+            if (activePopup === popup && popup.style.display === 'block') {
+                return;
+            }
+            
+            // 隐藏其他弹窗
+            for (let key in popupMap) {
+                if (popupMap[key] && popupMap[key] !== popup) {
+                    popupMap[key].style.display = 'none';
+                }
+            }
+            
+            // 获取标记的中心点坐标（基于标记圆点）
+            let anchorX = null, anchorY = null;
+            const dot = markerElement.querySelector('.marker-dot');
+            if (dot) {
+                const dotRect = dot.getBoundingClientRect();
+                anchorX = dotRect.left + dotRect.width / 2;
+                anchorY = dotRect.top + dotRect.height / 2;
+            } else {
+                const rect = markerElement.getBoundingClientRect();
+                anchorX = rect.left + 10;
+                anchorY = rect.top + 10;
+            }
+            
+            // 定位并显示弹窗
+            if (anchorX && anchorY) {
+                positionPopupAtAnchor(popup, anchorX, anchorY);
+            } else {
+                // 降级处理
+                popup.style.display = 'block';
+                popup.style.left = '30px';
+                popup.style.top = '100px';
+                popup.style.opacity = '1';
+            }
+            
+            activePopup = popup;
+            activeBridgeKey = bridgeKey;
+        }
+        
+        // 更新悬浮小卡位置（跟随标记圆点）
+        function updateLabelPosition(labelSpan, markerElement) {
+            const dot = markerElement.querySelector('.marker-dot');
+            if (dot) {
+                const dotRect = dot.getBoundingClientRect();
+                labelSpan.style.left = (dotRect.right + 8) + 'px';
+                labelSpan.style.top = (dotRect.top - 12) + 'px';
+            } else {
+                const rect = markerElement.getBoundingClientRect();
+                labelSpan.style.left = (rect.right + 6) + 'px';
+                labelSpan.style.top = (rect.top - 8) + 'px';
+            }
+        }
+        
+        // 为每个标记绑定悬停事件
+        markers.forEach(marker => {
+            // 获取桥标识key
+            let bridgeKey = '';
+            if (marker.classList.contains('marker-1')) bridgeKey = 'zhaozhou';
+            else if (marker.classList.contains('marker-2')) bridgeKey = 'lugou';
+            else if (marker.classList.contains('marker-3')) bridgeKey = 'luoyang';
+            else if (marker.classList.contains('marker-4')) bridgeKey = 'guangji';
+            
+            if (!bridgeKey) return;
+            
+            // 获取悬浮小卡元素
+            const labelSpan = marker.querySelector('.marker-label');
+            
+            // 鼠标进入: 显示弹窗（固定位置）和悬浮标签
+            marker.addEventListener('mouseenter', function(e) {
+                // 清除隐藏定时器
+                if (hideTimeout) {
+                    clearTimeout(hideTimeout);
+                    hideTimeout = null;
+                }
+                
+                // 显示弹窗（基于标记中心点固定位置）
+                showPopupForBridge(bridgeKey, marker);
+                
+                // 显示悬浮标签并定位
+                if (labelSpan) {
+                    labelSpan.style.opacity = '1';
+                    updateLabelPosition(labelSpan, marker);
+                }
+            });
+            
+            // 鼠标移动时仅更新悬浮标签位置（保持跟随标记），弹窗位置固定不变
+            marker.addEventListener('mousemove', function(e) {
+                if (labelSpan && labelSpan.style.opacity === '1') {
+                    updateLabelPosition(labelSpan, marker);
+                }
+            });
+            
+            // 鼠标离开标记时延迟隐藏
+            marker.addEventListener('mouseleave', function(e) {
+                hideTimeout = setTimeout(() => {
+                    hideAllPopups();
+                    if (labelSpan) {
+                        labelSpan.style.opacity = '0';
+                    }
+                }, 200);
+            });
+        });
+        
+        // 弹窗本身悬停时取消隐藏，允许用户阅读内容
+        for (let key in popupMap) {
+            const popup = popupMap[key];
+            if (!popup) continue;
+            
+            popup.addEventListener('mouseenter', function() {
+                if (hideTimeout) {
+                    clearTimeout(hideTimeout);
+                    hideTimeout = null;
+                }
+                // 同步active状态
+                if (activePopup !== popup) {
+                    for (let k in popupMap) {
+                        if (popupMap[k] && popupMap[k].style.display === 'block') {
+                            activePopup = popupMap[k];
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            popup.addEventListener('mouseleave', function() {
+                hideTimeout = setTimeout(() => {
+                    hideAllPopups();
+                    document.querySelectorAll('.marker-label').forEach(lbl => lbl.style.opacity = '0');
+                }, 200);
+            });
+        }
+        
+        // 点击地图空白区域关闭弹窗
+        const mapContainer = document.querySelector('.china-map');
+        if (mapContainer) {
+            mapContainer.addEventListener('click', function(e) {
+                const isMarker = e.target.closest('.bridge-marker');
+                if (!isMarker) {
+                    hideAllPopups();
+                    document.querySelectorAll('.marker-label').forEach(lbl => lbl.style.opacity = '0');
+                    if (hideTimeout) clearTimeout(hideTimeout);
+                }
+            });
+        }
+        
+        // 窗口大小改变时，如果弹窗正在显示，重新调整位置（基于原标记点）
+        window.addEventListener('resize', function() {
+            if (activePopup && activeBridgeKey) {
+                // 查找对应的标记元素
+                let targetMarker = null;
+                for (let marker of markers) {
+                    let key = '';
+                    if (marker.classList.contains('marker-1')) key = 'zhaozhou';
+                    else if (marker.classList.contains('marker-2')) key = 'lugou';
+                    else if (marker.classList.contains('marker-3')) key = 'luoyang';
+                    else if (marker.classList.contains('marker-4')) key = 'guangji';
+                    if (key === activeBridgeKey) {
+                        targetMarker = marker;
+                        break;
+                    }
+                }
+                if (targetMarker) {
+                    const dot = targetMarker.querySelector('.marker-dot');
+                    if (dot) {
+                        const dotRect = dot.getBoundingClientRect();
+                        const anchorX = dotRect.left + dotRect.width / 2;
+                        const anchorY = dotRect.top + dotRect.height / 2;
+                        positionPopupAtAnchor(activePopup, anchorX, anchorY);
+                    }
+                }
+            }
+        });
+        
+        console.log("枕水听桥 · 古桥交互地图 | 悬停弹窗位置固定，广济桥虚线无延长效果");
+    });
+</script>
+</body>
+</html>
